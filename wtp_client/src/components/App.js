@@ -1,13 +1,14 @@
 import React from 'react';
 import axios from 'axios';
 import PlantForm from './PlantForm';
+import PlantList from './PlantList';
 
 class App extends React.Component {
+    state = { plants: [] }
     //TODO : change the name of onSearchSubmit to onFormSubmit or something.
     //this is not a search 
     onSearchSubmit(plantData) {
-        console.log("Console " + plantData.wks);
-
+        
         var bodyFormData = new FormData();
         bodyFormData.append("name", plantData.name);
         bodyFormData.append("wks", plantData.wks);
@@ -18,50 +19,43 @@ class App extends React.Component {
         
 
         axios.post('http://localhost:8080/plant', bodyFormData)
-            .then(function (response) {
-                //handle success
-                console.log(response);
-            })
-            .catch(function (response) {
-                //handle error
+        .then((response) => {
                 console.log(response);
             });
 
-        // var bodyFormData = new FormData();
-        // bodyFormData.set('name', 'fig tree');
-        
-        // axios({
-        //     method: 'post',
-        //     url: 'http://localhost:8080/plant',
-        //     data: bodyFormData,
-        //     headers: {'Content-Type': 'multipart/form-data' }
-        //     })
-        //     .then(function (response) {
-        //         //handle success
-        //         console.log(response);
-        //     })
-        //     .catch(function (response) {
-        //         //handle error
-        //         console.log(response);
-        //     });
-
-        //how do I do a Post in axios?
-        //how do I use like a template string here?
-        // axios.post('http://localhost:8080/plant', {
-        //     name: ''
-        // })
-        // .then(function (response) {
-        //     console.log(response);
-        // })
-        // .catch(function (error){
-        //     console.log(error);
-        // });
+            // .catch(function (response) {
+            //     //handle error
+            //     console.log(response);
+            // });
+    }
+    //TODO : to see most current list, we have to refresh the page
+    //make it add the new data to the list view automatically
+    componentDidMount() {
+        axios.get('http://localhost:8080/plant').then((response) => {
+            this.setState(
+                {
+                    plants: response.data
+                })
+        })
     }
 
     render() {
         return (
-            <div className="ui container" style={{ marginTop: '10px'}}>
-                <PlantForm onSubmit={this.onSearchSubmit} />
+            <div>
+                <div className="ui container" style={{ marginTop: '10px'}}>
+                    <PlantForm onSubmit={this.onSearchSubmit} />
+                </div>
+                <table class="ui celled table">
+                    <thead>
+                        <tr><th>Name</th>
+                        <th>Weeks</th>
+                        <th>Plant Before Last Frost?</th>
+                        <th>Plant Before After Frost?</th>
+                        <th>Start Plants :</th>
+                        <th>Recommended method :</th>
+                    </tr></thead>
+                    <PlantList plants={this.state.plants}/>
+                </table>
             </div>
         );
     }  
